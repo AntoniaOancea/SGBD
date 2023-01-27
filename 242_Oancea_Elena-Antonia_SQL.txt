@@ -1,0 +1,881 @@
+-------------------------CREATE TABLE-----------------------------------------------
+
+CREATE TABLE istoric(
+    utilizator VARCHAR2(30),
+    eveniment VARCHAR2(20),
+    nume_obiect VARCHAR2(30),
+    data DATE 
+);
+
+--drop table istoric
+
+create table luni(
+    id_luna number(10) NOT NULL ,
+    nume_luna varchar2(20)NOT NULL,
+    bonus numeric(5,2) DEFAULT 0,
+    CONSTRAINT luni_pk PRIMARY KEY (id_luna)
+);
+
+--drop table luni
+
+create table posturi(
+    id_post number(10) NOT NULL,
+    nume_post varchar2(20) NOT NULL,
+    salariu_minim number(10) DEFAULT 1500,
+    CONSTRAINT posturi_pk PRIMARY KEY (id_post)
+);
+
+--drop table posturi
+
+create table furnizori(
+    id_furnizor number(10) NOT NULL,
+    nume_furnizor varchar2(50) NOT NULL,
+    adresa varchar2(50),
+    mail varchar2(50),
+    nr_telefon varchar2(15),
+    CONSTRAINT furnizori_pk PRIMARY KEY (id_furnizor)
+);
+
+--drop table furnizori
+
+create table angajati(
+    id_angajat number(10) NOT NULL,
+    id_manager number(10),
+    nume varchar2(20) NOT NULL,
+    prenume varchar2(20) NOT NULL,
+    mail varchar2(50),
+    nr_telefon varchar2(15),
+    id_post number(10),
+    data_angajare date NOT NULL,
+    salariu number(10) NOT NULL,
+    CONSTRAINT angajati_pk PRIMARY KEY (id_angajat),
+    CONSTRAINT angajati_fk1 FOREIGN KEY (id_manager) REFERENCES angajati(id_angajat),
+    CONSTRAINT angajati_fk2 FOREIGN KEY (id_post) REFERENCES posturi(id_post)
+);
+
+--drop table angajati
+
+create table departamente(
+    id_departament number(10) NOT NULL,
+    nume_departament varchar2(30) NOT NULL,
+    CONSTRAINT departamente_pk PRIMARY KEY (id_departament)
+);
+
+--drop table departamente
+
+create table angajati_departamente(
+    id_angajat number(10) not null,
+    id_departament number(10) not null,
+    CONSTRAINT ang_dep_pk PRIMARY KEY(id_angajat, id_departament),
+    CONSTRAINT ang_dep_fk1 FOREIGN KEY (id_angajat) REFERENCES angajati(id_angajat),
+    CONSTRAINT ang_dep_fk2 FOREIGN KEY (id_departament) REFERENCES departamente(id_departament)
+);
+
+--drop table angajati_departamente
+
+create table produse(
+    id_produs number(10) NOT NULL,
+    nume_produs varchar2(30) NOT NULL,
+    pret number(10) NOT NULL,
+    stoc number(10) NOT NULL,
+    id_departament  NOT NULL,
+    id_furnizor  NOT NULL,
+    CONSTRAINT produse_pk PRIMARY KEY(id_produs),
+    CONSTRAINT produse_fk1 FOREIGN KEY (id_furnizor) REFERENCES furnizori(id_furnizor),
+    CONSTRAINT produse_fk2 FOREIGN KEY (id_departament) REFERENCES departamente(id_departament)
+    
+);
+
+--drop table produse
+
+create table clienti(
+    id_client number(10) NOT NULL,
+    nume varchar2(20) NOT NULL,
+    prenume varchar2(20) NOT NULL,
+    mail varchar2(50) NOT NULL,
+    nr_telefon varchar2(15) NOT NULL,
+    data_inregistrare date NOT NULL,
+    CONSTRAINT clienti_pk PRIMARY KEY(id_client)
+);
+
+--drop table clienti
+
+
+create table comenzi(
+    id_comanda number(10) NOT NULL,
+    id_client number(10) NOT NULL,
+    adresa varchar2(100) NOT NULL,
+    total_plata number(10) DEFAULT 0,
+    CONSTRAINT comenzi_pk PRIMARY KEY(id_comanda),
+    CONSTRAINT comenzi_fk1 FOREIGN KEY (id_client) REFERENCES clienti(id_client)
+);
+
+--drop table comenzi
+
+create table produse_comenzi(
+    id_produs_comanda number(10) NOT NULL,
+    id_comanda number(10) NOT NULL,
+    id_produs number(10) NOT NULL,
+    nr_bucati number(10) DEFAULT 1,
+    CONSTRAINT prod_com_pk PRIMARY KEY(id_produs_comanda),
+    CONSTRAINT prod_com_fk1 FOREIGN KEY (id_comanda) REFERENCES comenzi(id_comanda),
+    CONSTRAINT prod_com_fk2 FOREIGN KEY (id_produs) REFERENCES produse(id_produs)
+);
+
+--drop table produse_comenzi
+
+create table retururi(
+    id_retur number(10) NOT NULL,
+    id_produs_comanda UNIQUE NOT NULL,
+    status number(2) DEFAULT 1,
+    CONSTRAINT retururi_pk PRIMARY KEY(id_retur),
+    CONSTRAINT retururi_fk1 FOREIGN KEY (id_produs_comanda) REFERENCES produse_comenzi(id_produs_comanda)
+);
+
+--drop table retururi
+
+create table plati_salariu(
+    id_plata number(10) NOT NULL,
+    id_angajat number(10) NOT NULL,
+    id_luna number(10) NOT NULL,
+    CONSTRAINT plati_sal_pk PRIMARY KEY(id_plata),
+    CONSTRAINT plati_sal_fk1 FOREIGN KEY (id_angajat) REFERENCES angajati(id_angajat),
+    CONSTRAINT plati_sal_fk2 FOREIGN KEY (id_luna) REFERENCES luni(id_luna)
+);
+
+--drop table plati_salariu
+
+
+
+---------------------------------INSERT------------------------------------------------------
+CREATE SEQUENCE secv
+START WITH 100
+INCREMENT BY 1
+
+
+insert into luni (id_luna,nume_luna,bonus) values (1, 'Ianuarie', 0.1);
+insert into luni (id_luna,nume_luna) values (2, 'Februarie');
+insert into luni (id_luna,nume_luna,bonus) values (3, 'Martie', 0.05);
+insert into luni (id_luna,nume_luna,bonus) values (4, 'Aprilie', 0.02);
+insert into luni (id_luna,nume_luna) values (5, 'Mai');
+insert into luni (id_luna,nume_luna,bonus) values (6, 'Iunie', 0.1);
+insert into luni (id_luna,nume_luna) values (7, 'Iulie');
+insert into luni (id_luna,nume_luna,bonus) values (8, 'August', 0.01);
+insert into luni (id_luna,nume_luna,bonus) values (9, 'Septembrie', 0.2);
+insert into luni (id_luna,nume_luna) values (10, 'Octombrie');
+insert into luni (id_luna,nume_luna) values (11, 'Noiembrie');
+insert into luni (id_luna,nume_luna,bonus) values (12, 'Decembrie', 0.5);
+
+--select* from luni
+
+insert into posturi (id_post, nume_post,salariu_minim) values (1,'CONTABIL',2000);
+insert into posturi (id_post, nume_post,salariu_minim) values (2,'AMBALARE COLETE',2000);
+insert into posturi (id_post, nume_post,salariu_minim) values (3,'CURIER',2500);
+insert into posturi (id_post, nume_post) values (4,'DEPOZIT');
+insert into posturi (id_post, nume_post,salariu_minim) values (5,'MANAGER',3000);
+
+--select * from posturi
+
+insert into furnizori (id_furnizor,nume_furnizor) values (secv.nextval,'furnizor1');
+insert into furnizori (id_furnizor,nume_furnizor) values (secv.nextval,'furnizor2');
+insert into furnizori (id_furnizor,nume_furnizor) values (secv.nextval,'furnizor3');
+insert into furnizori (id_furnizor,nume_furnizor) values (secv.nextval,'furnizor4');
+insert into furnizori (id_furnizor,nume_furnizor) values (secv.nextval,'furnizor5');
+
+--select * from furnizori
+
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Popescu','Ion','popescu.ion@yahoo.com','0722334455',TO_DATE('2019-06-21','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Popescu','Andrei','popescu.andrei@yahoo.com','0722334456',TO_DATE('2020-07-01','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Ionescu','Mihai','ionescu.mihai@yahoo.com','0712334455',TO_DATE('2022-05-01','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Savu','Ion','savu.ion@yahoo.com','0722344455',TO_DATE('2022-05-20','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Georgescu','Mihai','georgescu.mihai@yahoo.com','0772334455',TO_DATE('2019-07-24','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Ionescu','Daniela','ionescudaniela@yahoo.com','0752334455',TO_DATE('2021-07-22','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Marinescu','Maria','maria_marinescu@yahoo.com','0792334455',TO_DATE('2022-08-27','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Coman','Sorin','coman_sorin@yahoo.com','0762334455',TO_DATE('2020-08-04','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Coman','Sorin','coman.sorin@yahoo.com','0762334459',TO_DATE('2021-02-24','YYYY-MM-DD'));
+insert into clienti (id_client,nume,prenume,mail,nr_telefon,data_inregistrare) values (secv.nextval,'Savu','Ion','savu_ion@yahoo.com','0722344455',TO_DATE('2021-03-18','YYYY-MM-DD'));
+
+
+--select * from clienti
+
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Curatenie');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Electrocasnice');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Ingrijire');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Alimente');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Haine');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Sport');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Jucarii');
+insert into departamente (id_departament, nume_departament) values (secv.nextval,'Casa_Gradina');
+
+--select * from departamente;
+
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Scaun',100,4,167,147);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Masa',200,2,167,151);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Detergent vase',10,5,160,148);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Apa',8,20,163,149);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Zahar',5,10,163,150);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Faina',5,12,163,147);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Minge',50,7,165,148);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Paleta de tenis',80,3,165,149);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Fileu',40,6,165,150);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Pantaloni scurti',100,2,164,151);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Pantaloni',120,4,164,147);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Tricou',70,4,164,148);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Hanorac',90,4,164,149);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Robot de bucatarie',300,3,161,150);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Puzzle',100,2,166,147);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Monopoly',200,1,166,147);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Tren de jucarie',100,3,166,149);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Papusa',100,4,166,149);
+insert into produse (id_produs,nume_produs,pret,stoc,id_departament,id_furnizor) values (secv.nextval,'Dulap',500,2,167,151);
+
+
+--select* from produse
+
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,152,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,152,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,152,'Brasov');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,152,'Pitesti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,154,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,154,'Sibiu');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,153,'Sibiu');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,156,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,156,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,153,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,154,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,157,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,159,'Brasov');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,159,'Campulung');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,158,'Targoviste');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,153,'Brasov');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,155,'Cluj');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,155,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,155,'Timisoara');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,155,'Sibiu');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,154,'Bucuresti');
+insert into comenzi (id_comanda,id_client,adresa) values (secv.nextval,153,'Brasov');
+
+--select * from comenzi
+
+
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Popa','Daniel',3,TO_DATE('2015-07-21','YYYY-MM-DD'),2700); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Andrei','Marian',1,TO_DATE('2017-06-02','YYYY-MM-DD'),2100); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Popescu','Carina',2,TO_DATE('2018-01-09','YYYY-MM-DD'),2500); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Ionescu','Sorin',3,TO_DATE('2019-02-14','YYYY-MM-DD'),2700); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,286,'Popescu','Diana',4,TO_DATE('2020-03-27','YYYY-MM-DD'),1600); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,287,'Popa','Ion',3,TO_DATE('2021-07-24','YYYY-MM-DD'),2700); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,288,'David','Marius',1,TO_DATE('2022-04-19','YYYY-MM-DD'),2700); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,289,'Popovici','Maria',2,TO_DATE('2016-04-07','YYYY-MM-DD'),2200); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Simionescu','Sorin',3,TO_DATE('2017-05-05','YYYY-MM-DD'),2600); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,288,'Oancea','Andreea',4,TO_DATE('2018-08-12','YYYY-MM-DD'),1800); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Coman','Ana',2,TO_DATE('2019-06-23','YYYY-MM-DD'),2100); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Danescu','Florin',1,TO_DATE('2020-09-07','YYYY-MM-DD'),2000); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,288,'Florescu','Alexandru',4,TO_DATE('2021-12-13','YYYY-MM-DD'),2000); 
+insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,null,'Banica','Dan',3,TO_DATE('2015-06-20','YYYY-MM-DD'),2500); 
+
+--select * from angajati
+
+insert into angajati_departamente (id_angajat,id_departament) values (286,160);
+insert into angajati_departamente (id_angajat,id_departament) values (287,161);
+insert into angajati_departamente (id_angajat,id_departament) values (288,162);
+insert into angajati_departamente (id_angajat,id_departament) values (289,163);
+insert into angajati_departamente (id_angajat,id_departament) values (290,164);
+insert into angajati_departamente (id_angajat,id_departament) values (291,165);
+insert into angajati_departamente (id_angajat,id_departament) values (292,166);
+insert into angajati_departamente (id_angajat,id_departament) values (294,167);
+insert into angajati_departamente (id_angajat,id_departament) values (296,160);
+insert into angajati_departamente (id_angajat,id_departament) values (297,161);
+insert into angajati_departamente (id_angajat,id_departament) values (286,162);
+insert into angajati_departamente (id_angajat,id_departament) values (298,163);
+insert into angajati_departamente (id_angajat,id_departament) values (299,163);
+insert into angajati_departamente (id_angajat,id_departament) values (286,164);
+insert into angajati_departamente (id_angajat,id_departament) values (287,164);
+insert into angajati_departamente (id_angajat,id_departament) values (288,164);
+insert into angajati_departamente (id_angajat,id_departament) values (289,165);
+insert into angajati_departamente (id_angajat,id_departament) values (286,165);
+insert into angajati_departamente (id_angajat,id_departament) values (287,166);
+insert into angajati_departamente (id_angajat,id_departament) values (291,167);
+
+
+--select * from angajati_departamente
+
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,209,202,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,209,203,2);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,208,204,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,209,205,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,210,206,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,211,168,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,212,191,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,213,194,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,214,192,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,215,192,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,216,193,4);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,217,196,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,218,197,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,219,201,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,210,200,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,210,198,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,211,198,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,212,199,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,220,199,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,221,192,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,222,193,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,223,192,2);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,224,168,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,225,191,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,225,192,1);
+insert into produse_comenzi (id_produs_comanda,id_comanda,id_produs,nr_bucati) values (secv.nextval,226,192,1);
+
+
+--select* from produse_comenzi;
+
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,306,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,310,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,309,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,319,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,320,0);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,325,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,331,0);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,330,0);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,327,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,326,1);
+insert into retururi (id_retur,id_produs_comanda,status) VALUES (secv.nextval,324,0);
+
+--select * from retururi
+
+
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,286,1);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,287,2);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,288,3);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,289,4);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,290,5);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,291,6);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,292,7);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,293,8);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,294,9);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,295,10);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,296,11);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,297,12);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,298,1);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,299,2);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,286,3);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,287,4);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,288,5);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,289,6);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,286,7);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,287,8);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,288,9);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,289,10);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,290,11);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,291,12);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,292,1);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,293,2);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,294,3);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,295,4);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,296,5);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,297,6);
+insert into plati_salariu (id_plata,id_angajat,id_luna) values (secv.nextval,298,7);
+
+--select * from plati_salariu
+
+
+-----------------------------TRIGGER--------------------------------------------------------------
+--ADAUGAM EVENIMENTELE DE TIP CREATE, DROP SI ALTER IN TABELUL ISTORIC
+CREATE OR REPLACE TRIGGER istoric_LDD
+AFTER CREATE OR DROP OR ALTER ON SCHEMA 
+BEGIN
+INSERT INTO istoric
+VALUES (SYS.LOGIN_USER, SYS.SYSEVENT, SYS.DICTIONARY_OBJ_NAME, SYSDATE);
+END;
+/
+
+-- NU PERMITE MODIFICAREA COLOANELOR id_produs,nume_produs,id_departament,id_furnizor
+-- DIN TABELUL PRODUSE SI NU PERMITE STERGEREA UNUI PRODUS, NICI 
+
+CREATE OR REPLACE TRIGGER PROD_UPDATE_DELETE
+BEFORE UPDATE OF id_produs,nume_produs,id_departament,id_furnizor OR DELETE ON produse
+FOR EACH ROW
+DECLARE
+    nr INT:=null;
+BEGIN
+    IF UPDATING THEN 
+        RAISE_APPLICATION_ERROR(-20001,'Modificarea nu poate fi realizata!');
+    ELSE
+        RAISE_APPLICATION_ERROR(-20002,'Nu poti sterge un produs!Poti modifica stocul produsului!');
+    END IF;
+END;
+/
+
+--UPDATE produse SET id_furnizor=101 WHERE id_produs=168;
+--DELETE FROM produse WHERE ID_PRODUS=168;
+
+
+-- NU PERMITE ADAUGAREA UNUI PRODUS DEJA EXISTENT
+CREATE OR REPLACE TRIGGER PROD_INSERT
+BEFORE INSERT ON produse
+FOR EACH ROW
+DECLARE
+    nr int; 
+BEGIN
+    SELECT COUNT(*) INTO nr 
+    FROM produse
+    WHERE nume_produs = :NEW.nume_produs;
+    IF nr <> 0 THEN
+        RAISE_APPLICATION_ERROR(-20002,'Produsul exista deja!Poti modifica stocul produsului!');
+    END IF;
+END;
+/
+    
+--INSERT INTO produse VALUES (secv.nextval,'Scaun',120,3,167,147);
+
+
+--NU SE PERMITE MODIFICAREA TABELULUI DEPARTAMENTE
+
+CREATE OR REPLACE TRIGGER DEP_UPDATE
+BEFORE UPDATE ON DEPARTAMENTE
+BEGIN
+    RAISE_APPLICATION_ERROR(-20005,'Nu poti modifica tabelul departamente!');
+END;
+/
+
+--UPDATE departamente SET nume_departament='IT' WHERE id_departament = 160;
+
+
+
+
+--DACA LA INSERAREA UNUI ANGAJAT ID_POST NU ESTE NULL VERIFICAM DACA SALARIUL ANGAJATULUI ESTE MAI MARE DECAT 
+--SALARIUL MINIM PENTRU POSTUL RESPECTIV
+--UN ANGAJAT NOU NU POATE FI MANAGER
+CREATE OR REPLACE TRIGGER ANG_MAN_POST
+BEFORE INSERT ON angajati
+FOR EACH ROW
+DECLARE
+    salariu_post posturi.salariu_minim%type;
+BEGIN
+    IF :NEW.id_post = 5 THEN
+        RAISE_APPLICATION_ERROR(-20007,'Un angajat nou nu poate fi manager!');
+    END IF;
+    IF :NEW.id_post >=1 AND :NEW.id_post<=5 
+    THEN
+        SELECT salariu_minim INTO salariu_post FROM posturi WHERE id_post = :NEW.id_post; 
+        IF salariu_post > :NEW.salariu THEN
+            RAISE_APPLICATION_ERROR(-20007,'Angajatul trebuie sa aiba salariul mai mare de '||salariu_post||'!');
+        END IF;
+    END IF;
+END;
+/
+--insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,230,'Mihai','Ioana',4,TO_DATE('2016-08-17','YYYY-MM-DD'),1000); 
+--insert into angajati (id_angajat, id_manager,nume,prenume,id_post,data_angajare,salariu) values (secv.nextval,230,'Mihai','Ioana',5,TO_DATE('2016-08-17','YYYY-MM-DD'),1000); 
+
+
+--LA INSERAREA UNUI PRODUS IN COMENZI SA SE REACTUALIZEZE PRETUL TOTAL DIN COMENZI SI STOCUL DIN PRODUSE IN CAZUL IN CARE EXISTA SUFICIENTE PRODUSE IN STOC
+CREATE OR REPLACE TRIGGER TOTAL_COM
+AFTER INSERT ON produse_comenzi
+FOR EACH ROW
+DECLARE 
+    pret_p produse.pret%type;
+    stoc_p produse.stoc%type;
+BEGIN
+    select stoc into stoc_p from produse where id_produs=:NEW.id_produs;
+    IF stoc_p >= :NEW.nr_bucati THEN
+        SELECT pret INTO pret_p FROM produse WHERE id_produs=:NEW.id_produs;
+        UPDATE comenzi SET total_plata =total_plata + pret_p * :NEW.nr_bucati WHERE id_comanda=:NEW.id_comanda;
+        UPDATE PRODUSE SET stoc = stoc - :NEW.nr_bucati WHERE id_produs=:NEW.id_produs;
+    ELSE
+        RAISE_APPLICATION_ERROR (-20008,'Nu exista suficiente produse in stoc');
+    END IF;
+END;
+
+--insert into produse_comenzi values (secv.nextval,208,203,3);
+--insert into produse_comenzi values (secv.nextval,208,207,2);
+
+--select * from produse_comenzi;
+--select * from comenzi;
+
+
+
+--DUPA INSERAREA UNUI RETUR REACTUALIZAM STOCUL PRODUSULUI RETURNAT DACA SE POATE ADAUGA IN STOC
+CREATE OR REPLACE TRIGGER RET_STOC
+AFTER INSERT ON retururi
+FOR EACH ROW
+DECLARE
+    nr_prod produse_comenzi.nr_bucati%type;
+    prod produse_comenzi.id_produs%type;
+BEGIN
+    IF :NEW.status = 1 THEN
+        SELECT nr_bucati INTO nr_prod FROM produse_comenzi WHERE id_produs_comanda = :NEW.id_produs_comanda;
+        SELECT id_produs INTO prod FROM produse_comenzi WHERE id_produs_comanda = :NEW.id_produs_comanda;
+        UPDATE produse SET stoc = stoc + nr_prod WHERE id_produs = prod;
+    END IF;
+END;
+
+--INSERT INTO RETURURI VALUES (secv.nextval,304,1); --s-au adaugat 2 dulapuri in stoc
+
+--select * from retururi; select * from produse;
+
+
+
+---------------------------PACHET 1-------------------------------------------------------------------------------
+CREATE OR REPLACE PACKAGE pachet1
+AS
+    PROCEDURE ANG_SAL (man angajati.id_manager%type); --ex6
+    PROCEDURE PROD_DEP(par number); --ex7
+    FUNCTION ANG_DEP (nume_a angajati.nume%type,prenume_a angajati.prenume%type) RETURN  departamente.nume_departament%type; --ex8
+    PROCEDURE FURN_CL (nume_f furnizori.nume_furnizor%type); --ex9 
+    
+END pachet1;
+/
+
+CREATE OR REPLACE PACKAGE BODY pachet1 AS
+--Pentru un manager dat ca parametru afisati pentru angajatii pe care ii are in subordine salariile pe care
+--le primesc acestia in fiecare luna a anului. Daca id-ul nu corespunde unui manager afisati un mesaj semnificativ.
+   PROCEDURE ANG_SAL (man angajati.id_manager%type) AS
+        TYPE vector IS VARRAY(13) OF NUMBER;
+        ang vector := vector();
+        
+        TYPE tablou_indexat IS TABLE OF luni%rowtype
+                            INDEX BY BINARY_INTEGER;
+        t tablou_indexat;
+        
+        nume angajati.nume%type;
+        prenume angajati.prenume%type;
+        salariu angajati.salariu%type;
+        salariu_luna angajati.salariu%type;
+        
+        ok number:=0;
+    BEGIN
+        SELECT COUNT(*) INTO ok FROM angajati WHERE id_manager = man;
+        IF ok = 0 THEN
+            DBMS_OUTPUT.PUT_LINE('ID-ul dat nu corespunde unui manager!');
+        ELSE
+            SELECT id_angajat BULK COLLECT INTO ang FROM angajati WHERE id_manager=man;
+            SELECT * BULK COLLECT INTO t FROM luni;
+            FOR j IN ang.first..ang.last LOOP
+                SELECT nume,prenume,trunc(salariu) to_int INTO nume,prenume,salariu FROM angajati WHERE id_angajat = ang(j);
+                FOR i IN 1..12 LOOP
+                    salariu_luna := salariu+salariu*t(i).bonus;
+                    DBMS_OUTPUT.PUT_LINE(nume||' '||prenume||' va incasa in luna '||t(i).nume_luna||' '||salariu_luna);
+                END LOOP;
+            END LOOP;    
+        END IF;
+    END ANG_SAL;
+    
+    
+--Pentru fiecare departament afisati produsele care au pretul mai mare sau egal decat un parametru.
+    PROCEDURE PROD_DEP(par number) AS
+        CURSOR c_prod (parametru NUMBER) IS
+            SELECT id_produs, nume_produs, pret, id_furnizor, id_departament
+            FROM produse WHERE pret >= parametru;
+        produs produse.id_produs%type;
+        nume produse.nume_produs%type;
+        pret produse.pret%type;
+        furnizor produse.id_furnizor%type;
+        departament produse.id_departament%type;
+        dep departamente.id_departament%type;
+        
+    BEGIN
+        FOR i IN (SELECT id_departament FROM departamente)LOOP
+            OPEN c_prod(par);
+            DBMS_OUTPUT.PUT_LINE('DEPARTAMENTUL '||i.id_departament);
+            LOOP
+                FETCH c_prod INTO produs,nume,pret,furnizor,departament;
+                EXIT WHEN c_prod%NOTFOUND;
+                IF departament = i.id_departament THEN
+                    DBMS_OUTPUT.PUT_LINE(produs||' : '||nume||',pret = '||pret);
+                END IF;
+            END LOOP;
+            CLOSE c_prod;
+        END LOOP;
+    END PROD_DEP;
+
+
+-- Pentru un angajat dat afisati departamentul la care lucreaza.
+    FUNCTION ANG_DEP (nume_a angajati.nume%type,prenume_a angajati.prenume%type)
+    RETURN  departamente.nume_departament%type IS  
+        dep departamente.nume_departament%type;
+        ct number;
+        MAI_MULTE_DEPARTAMENTE EXCEPTION;
+    BEGIN
+        SELECT nume_departament INTO dep FROM departamente
+        WHERE id_departament = (
+                                        SELECT max(id_departament) FROM angajati_departamente
+                                        WHERE id_angajat = (
+                                                                SELECT id_angajat FROM angajati 
+                                                                WHERE upper(nume) = upper(nume_a) AND upper(prenume) = upper(prenume_a)
+                                                            )
+                                );
+        SELECT COUNT(*) INTO ct FROM angajati_departamente
+                                        WHERE id_angajat = (
+                                                                SELECT id_angajat FROM angajati 
+                                                                WHERE upper(nume) = upper(nume_a) AND upper(prenume) = upper(prenume_a)
+                                                            );
+        IF ct > 1 THEN
+            RAISE MAI_MULTE_DEPARTAMENTE;
+        ELSE
+            RETURN dep;
+        END IF;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                RAISE_APPLICATION_ERROR(-20001,'Nu exista angajatul');
+            WHEN MAI_MULTE_DEPARTAMENTE THEN
+                RAISE_APPLICATION_ERROR(-20002,'Angajatul lucreaza la mai multe departamente,printre care si '||dep);
+            WHEN OTHERS THEN
+                RAISE_APPLICATION_ERROR(-20003,'Alta eroare!');
+    END ANG_DEP;
+
+    
+--Pentru un furnizor dat afisati un client care a cumparat unul din produsele ce apartin furnizorul respectiv.
+    PROCEDURE FURN_CL (nume_f furnizori.nume_furnizor%type) IS
+        ct number;
+        cli clienti.nume%type;
+        furnizor furnizori.id_furnizor%type;
+        ACELASI_NUME EXCEPTION;
+        NU_EXISTA_PRODUSE EXCEPTION;
+        NU_EXISTA_COMENZI EXCEPTION;
+    BEGIN
+        SELECT COUNT(*) INTO ct FROM furnizori
+        WHERE nume_furnizor = nume_f;
+        
+        IF ct>1 THEN
+            RAISE ACELASI_NUME;
+        END IF;
+        
+        SELECT id_furnizor INTO furnizor FROM furnizori
+        WHERE nume_furnizor = nume_f;
+        
+        SELECT COUNT(*) INTO ct FROM produse
+        WHERE id_furnizor = furnizor;
+        
+        IF ct=0 THEN
+            RAISE NU_EXISTA_PRODUSE;
+        END IF;
+        
+        SELECT count(*) INTO ct FROM produse_comenzi
+        WHERE id_produs in (
+                                SELECT id_produs FROM produse
+                                WHERE id_furnizor = furnizor
+                            );
+        
+        IF ct=0 THEN
+            RAISE NU_EXISTA_COMENZI;
+        END IF;
+        
+        -- Pentru a arunca TOO_MANY_ROWS am cautat numele persoanei dupa id, apoi am cautat id-ul dupa nume, fapt ce mi-a returnat mai multe id-uri,
+        -- apoi am introdus in cli numele angajatului cu id-ul dat , iar in cli pot insera doar unul.
+        SELECT nume INTO cli FROM clienti
+        WHERE id_client in (
+                            SELECT id_client FROM clienti
+                            where nume = (
+                                            SELECT nume FROM clienti
+                                            WHERE id_client in (
+                                                                    SELECT max(id_client) FROM comenzi
+                                                                    WHERE id_comanda in (
+                                                                                            SELECT id_comanda FROM produse_comenzi
+                                                                                            WHERE id_produs in (
+                                                                                                                    SELECT id_produs FROM produse
+                                                                                                                    WHERE id_furnizor = (
+                                                                                                                                            SELECT id_furnizor FROM furnizori
+                                                                                                                                            WHERE upper(nume_furnizor) = upper(nume_f)
+                                                                                                                                            )
+                                                                                                                )
+                                                                                        )
+                                                                )
+                                            )
+                        );
+        DBMS_OUTPUT.PUT_LINE('Un produs de la furnizorul: '||nume_f ||' a fost achizitionat de '||cli);
+        
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                    RAISE_APPLICATION_ERROR(-20001,'Nu exista furnizorul!');
+            WHEN NU_EXISTA_PRODUSE THEN
+                    RAISE_APPLICATION_ERROR(-20002,'Nu exista produse ce apartin furnizorului dat ca parametru!');
+            WHEN NU_EXISTA_COMENZI THEN
+                    RAISE_APPLICATION_ERROR(-20003,'Nu exista comenzi ce contin produse ce apartin furnizorului dat ca parametru!');
+            WHEN ACELASI_NUME THEN
+                    RAISE_APPLICATION_ERROR(-20004,'Exista mai multi furnizori cu acest nume!');
+            WHEN TOO_MANY_ROWS THEN
+                    RAISE_APPLICATION_ERROR(-20006,'Mai multi clienti cu acelasi nume!');
+        
+    END FURN_CL;
+
+END pachet1;
+/
+
+
+--testam pachetul
+
+CALL pachet1.ang_sal(288);
+
+CALL pachet1.prod_dep(100);
+
+BEGIN 
+    DBMS_OUTPUT.PUT_LINE(pachet1.ang_dep('Popescu','Diana')); -- Haine
+END;
+/
+
+BEGIN 
+    pachet1.FURN_CL('furnizor5'); -- Popescu
+END;
+/
+
+
+------------------------------------PACHET 2--------------------------------------------------------------------------------------
+
+CREATE OR REPLACE PACKAGE pachet2
+AS
+    TYPE tablou_indexat IS TABLE OF angajati%rowtype INDEX BY BINARY_INTEGER; 
+    TYPE produs IS RECORD (id_prod produse.id_produs%type,
+                            nume_prod produse.nume_produs%type,
+                            stoc_prod produse.stoc%type,
+                            pret_prod produse.pret%type); 
+    
+     
+    
+    PROCEDURE UPD_MAN(ang angajati.id_angajat%type);
+    PROCEDURE ALL_MAN;
+    PROCEDURE COM_PR (comanda comenzi.id_comanda%type);
+    
+    FUNCTION RET_NR(comanda comenzi.id_comanda%type) RETURN NUMBER;
+    FUNCTION RET_PROD RETURN NUMBER;
+    FUNCTION GET_NUME_PRODUS(pr produse.id_produs%type) RETURN produse.nume_produs%type;
+    
+END pachet2;
+/
+
+CREATE OR REPLACE PACKAGE BODY pachet2 AS
+-- setati postul MANAGER pentru angajati 
+    PROCEDURE UPD_MAN(ang angajati.id_angajat%type) AS
+    BEGIN
+        UPDATE angajati SET id_post = 5 WHERE id_angajat = ang;     
+    END UPD_MAN;
+    
+
+-- pentru toti angajati care apar ca si id_manager pentru un angajat setati postul MANAGER
+    PROCEDURE ALL_MAN AS
+        emp tablou_indexat; 
+    BEGIN
+        SELECT * BULK COLLECT INTO emp FROM angajati;
+        
+        FOR i IN  1..emp.last LOOP
+            IF emp(i).id_manager IS NOT NULL THEN
+               UPD_MAN(emp(i).id_manager);     
+            END IF;
+        END LOOP;
+    END ALL_MAN;
+        
+-- returnati numarul de produse comandate pentru o comanda data ca parametru       
+    FUNCTION RET_NR(comanda comenzi.id_comanda%TYPE ) RETURN NUMBER AS
+        ct NUMBER:=0;
+    BEGIN
+        SELECT SUM(nr_bucati) INTO ct FROM produse_comenzi
+        WHERE id_comanda = comanda;
+        
+        return ct;
+        EXCEPTION 
+            WHEN NO_DATA_FOUND THEN
+                RAISE_APPLICATION_ERROR(-20020,'Nu exista comanda cu numarul '||comanda||'!');
+    END RET_NR;
+    
+-- returnati produsul pentru care au fost comandate cele mai multe exemplare
+-- daca sunt mai multe afisati-l pe oricare dintre ele
+    FUNCTION RET_PROD RETURN NUMBER AS
+        pr PRODUS;
+        id_pr produse.id_produs%type;
+        maxim NUMBER;
+    BEGIN
+        
+        SELECT * INTO id_pr,maxim
+        FROM (SELECT id_produs,SUM(nr_bucati) FROM produse_comenzi
+                GROUP BY id_produs
+                ORDER BY SUM(nr_bucati) DESC
+                )
+        WHERE ROWNUM=1;
+        
+        RETURN id_pr;
+    END RET_PROD;
+    
+-- returnati numele unui produs in functie de id-ul sau
+    FUNCTION GET_NUME_PRODUS(pr produse.id_produs%type) 
+    RETURN produse.nume_produs%type IS
+        nume produse.nume_produs%type;
+    BEGIN
+        SELECT nume_produs INTO nume FROM produse
+        WHERE id_produs = pr;
+        RETURN nume;
+        EXCEPTION 
+                WHEN NO_DATA_FOUND THEN
+                    RAISE_APPLICATION_ERROR(-20001,'Nu exista produsul cu codul '||pr);
+    END;
+    
+--pentru o comanda data prin id-ul sau afisati produsele , iar daca nu contine produse afisati un mesaj sugestiv
+    PROCEDURE COM_PR (comanda comenzi.id_comanda%type) AS
+        CURSOR c IS SELECT * FROM produse_comenzi 
+                    WHERE id_comanda = comanda;
+        ct NUMBER:=0;
+        ok NUMBER:=0;
+                    
+    BEGIN
+        SELECT COUNT(*) INTO ok FROM comenzi
+        WHERE id_comanda = comanda;
+        IF ok=0 THEN
+            RAISE NO_DATA_FOUND;
+        END IF;
+        ct:=ret_nr(comanda);
+        IF ct=0 THEN
+            DBMS_OUTPUT.PUT_LINE('Comanda cu numarul '||comanda||' nu contine produse momentan!');
+        ELSE IF  ct=1 THEN
+            DBMS_OUTPUT.PUT_LINE('Comanda cu numarul '||comanda||' contine un produs!');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Comanda cu numarul '||comanda||' contine '|| ct||' produse!');
+            END IF;
+        END IF;
+        FOR  i in c LOOP
+            DBMS_OUTPUT.PUT_LINE(GET_NUME_PRODUS(i.id_produs)||' x'||i.nr_bucati);
+        END LOOP;
+         EXCEPTION 
+                WHEN NO_DATA_FOUND THEN
+                    RAISE_APPLICATION_ERROR(-20001,'Nu exista comanda cu numarul '||comanda);
+    END COM_PR;
+    
+END pachet2;
+/
+
+
+--testam pachetul
+BEGIN 
+    pachet2.all_man; 
+END;
+/
+CALL pachet2.upd_man(286);
+
+BEGIN
+    DBMS_OUTPUT.PUT_LINE(pachet2.ret_prod||' : '||pachet2.get_nume_produs(pachet2.ret_prod)||' este produsul pentru care s-au vandut cele mai multe exemplare'); --192 : Apa este produsul pentru care s-au vandut cele mai multe exemplare
+END;
+/
+
+BEGIN 
+    DBMS_OUTPUT.PUT_LINE('Comanda cu numarul 208 are '||pachet2.ret_nr(208) ||' produse');--Comanda cu numarul 208 are 3 produse
+END;
+/
+
+BEGIN 
+    DBMS_OUTPUT.PUT_LINE('Produsul cu id-ul 190 este '||pachet2.get_nume_produs(190));--Produsul cu id-ul 190 este Masa
+END;
+/
+
+BEGIN
+    pachet2.com_pr(250); --ERROR : Nu exista comanda cu numarul 250
+END;
+/
+BEGIN
+    pachet2.com_pr(210);
+--    Comanda cu numarul 210 contine 3 produse!
+--    Papusa x1
+--    Tricou x1
+--    Pantaloni scurti x1
+END;
+/
+
+
+
+
