@@ -1,0 +1,78 @@
+VARIABLE  rezultat VARCHAR2(35)
+declare
+    v_nrang number(3);
+BEGIN 
+    SELECT department_name , count(*)
+    INTO :rezultat , v_nrang
+    FROM employees e, departments d
+    WHERE e.department_id=d.department_id
+    GROUP BY department_name
+    HAVING COUNT(*) = (SELECT max(COUNT(*))
+                        FROM   employees
+                        GROUP BY department_id);
+    DBMS_OUTPUT.PUT_LINE('Departamentul '|| :rezultat);
+    DBMS_OUTPUT.PUT_LINE('Numarul de angajati '|| v_nrang);
+END;
+/
+
+
+SET VERIFY OFF
+DECLARE
+    v_codemployees.employee_id%TYPE:=&p_cod;
+    v_bonus NUMBER(8);
+    v_salariu_anual NUMBER(8);
+BEGIN
+    SELECT salary*12 
+    INTO v_salariu_anual
+    FROM   employees 
+    WHERE  employee_id = v_cod;
+    IF v_salariu_anual>=200001
+    THEN v_bonus:=20000;
+    ELSIF v_salariu_anual BETWEEN 100001 AND 200000
+    THEN v_bonus:=10000;
+    ELSE v_bonus:=5000;
+    END IF;DBMS_OUTPUT.PUT_LINE('Bonusul este ' || v_bonus);
+END;
+/
+SET VERIFY ON
+
+
+
+
+
+DECLARE
+    contor NUMBER(6) := 1;
+    v_data  DATE;
+    maxim   NUMBER(2) := LAST_DAY(SYSDATE)-SYSDATE;
+BEGIN 
+    LOOP
+        v_data := sysdate+contor;
+        INSERT INTO zile_242
+        VALUES (contor,v_data,to_char(v_data,'Day'));
+        contor := contor + 1;
+        EXIT WHEN contor > maxim;
+    END LOOP;
+END;
+/
+
+--2.
+
+
+DECLARE
+    lastday NUMBER(2) :=EXTRACT (DAY FROM LAST_DAY(SYSDATE) ;
+    i number(2);
+    
+BEGIN
+    FOR i in TO DATE('01-10-22','dd
+    loop
+        DBMS.OUTPUT_LINE(i); 
+    end loop;
+
+
+END;
+/
+
+
+
+
+

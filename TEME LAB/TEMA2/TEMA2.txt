@@ -1,0 +1,49 @@
+1. member ===> member_id
+   title ===>title_id
+   title_copy ===> copy_id+title_id
+   rental===> book_date+copy_id+title_id
+   reservation ===> res_date+member_id+title_id
+
+2. 
+
+4. 
+  
+
+   select * from title
+   inner join rental using (title_id)
+   group by category
+   having count(*)=  (select max(count(category)) from rental	
+   			inner join title using (title_id)
+   			group by category)
+
+
+
+	select * from title a
+	inner join (select category from rental	
+   			inner join title using (title_id)
+   			group by category
+			having count(*)==max(count(category))) maxCat
+	on a.category=maxCat.category 
+   
+
+5.
+SCHITA:	select title_id from title_copy
+	where title_id not in ( select title_id from rental 
+				where act_rect_date == NULL)
+	and title_id not in ( select title_id from reservation 
+				res_date != sysdate)
+
+
+	select title from title t join(select title_id,copy_id from title_copy
+	minus
+	select title_id,copy_id from rentals r
+	right joi title_copy t on r.title_id=t.tile_id
+	where exp_ret_date is null) sq on t.title=sq_title
+
+
+
+10. 	select las_name, first_name, copy_id, cout(copy_id)
+	from membru m
+	inner join rental t on m.member_id= t.member_id
+	right join title_copy tc on t.copy_id=tc.copy_id
+	group by last_name,first_name,copy_id

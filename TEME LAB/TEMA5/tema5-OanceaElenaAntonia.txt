@@ -1,0 +1,224 @@
+--2
+
+CREATE OR REPLACE TYPE tip_orase_ao IS TABLE OF VARCHAR2(100);
+
+CREATE TABLE excursie_ao (
+    cod_excursie NUMBER(4) PRIMARY KEY,
+    denumire VARCHAR2(20),
+    orase tip_orase_ao,
+    status VARCHAR(20) CONSTRAINT check_status_ao CHECK(status in ('UNAVAILABLE','AVAILABLE'))
+ )
+NESTED TABLE orase STORE AS orase_ao;
+
+select* from excursie_ao
+
+--a
+INSERT INTO excursie_ao
+VALUES (1, 'ROMANIA', tip_orase_ao('BUCURESTI', 'BRASOV', 'CAMPULUNG', 'TARGOVISTE', 'SIBIU'), 'AVAILABLE');
+
+INSERT INTO excursie_ao
+VALUES (2, 'ITALIA', tip_orase_ao('ROMA', 'FLORENTIA', 'SORRENTO'), 'UNAVAILABLE');
+
+INSERT INTO excursie_ao
+VALUES (3, 'GRECIA', tip_orase_ao('ATHENA', 'SALONIC','RODOS'), 'AVAILABLE');
+
+INSERT INTO excursie_ao
+VALUES (4, 'TURCIA', tip_orase_ao('ANKARA', 'ISTANBUL', 'ANTALYA'), 'AVAILABLE');
+
+INSERT INTO excursie_ao
+VALUES (5, 'SPANIA', tip_orase_ao('MADRID', 'BARCELONA'), 'AVAILABLE');
+
+--b
+DECLARE
+    id NUMBER(4) := &id;
+    oras VARCHAR(200) :='&oras';
+BEGIN
+    INSERT INTO TABLE( SELECT orase FROM excursie_ao WHERE cod_excursie = id) VALUES (UPPER(oras));
+    DBMS_OUTPUT.PUT_LINE ('Insert succeeded');
+END;
+/
+
+DECLARE 
+    tabel tip_orase_ao := tip_orase_ao();
+    aux   tip_orase_ao := tip_orase_ao();
+    id        NUMBER(4) := &id;
+    oras   VARCHAR(200) :='&oras';
+BEGIN
+    SELECT orase
+    INTO tabel
+    FROM excursie_ao
+    WHERE cod_excursie = id;
+    
+    FOR i in 1..tabel.count LOOP
+        aux.extend;
+        IF i = 1 
+            THEN aux(i) := tabel(i);
+        END IF;
+        IF i = 2
+            THEN aux(i) := UPPER(oras);
+            aux.extend;
+            aux(i+1) := tabel(i);
+        END IF;
+        IF i > 2
+            THEN aux(i+1) := tabel(i);
+        END IF;
+    END LOOP;
+    
+    UPDATE excursie_ao
+    SET orase = aux
+    WHERE cod_excursie = id;
+END;
+/
+
+DECLARE 
+    tabel tip_orase_ao := tip_orase_ao();
+    id        NUMBER(4) := &id;
+    oras1   VARCHAR(200) :='&oras1';
+    oras2   VARCHAR(200) :='&oras2';
+BEGIN
+    SELECT orase
+    INTO tabel
+    FROM excursie_ao
+    WHERE cod_excursie = id;
+    
+    FOR i in 1..tabel.count LOOP
+        IF tabel(i) = upper(oras1) 
+            THEN tabel(i) := upper(oras2);
+        ELSE
+            IF tabel(i) = upper(oras2) 
+                THEN tabel(i) := upper(oras1);
+            END IF;
+        END IF;
+    END LOOP;
+    
+    UPDATE excursie_ao
+    SET orase = tabel
+    WHERE cod_excursie = id;
+END;
+/
+
+
+DECLARE 
+    tabel tip_orase_ao := tip_orase_ao();
+    aux tip_orase_ao := tip_orase_ao();
+    id        NUMBER(4) := &id;
+    oras   VARCHAR(200) :='&oras';
+    j NUMBER(6) := 1;
+BEGIN
+    SELECT orase
+    INTO tabel
+    FROM excursie_ao
+    WHERE cod_excursie = id;
+    
+    FOR i in 1..tabel.count LOOP
+        IF tabel(i) != upper(oras)
+            THEN aux.extend;
+                 aux(j) := tabel(i);
+                 j := j + 1;  
+        END IF;
+    END LOOP;
+    
+    UPDATE excursie_ao 
+    SET orase = aux
+    WHERE cod_excursie = id;
+END;
+/
+
+--c
+DECLARE 
+    tabel tip_orase_ao := tip_orase_ao();
+    id        NUMBER(4) := &id;
+    
+BEGIN
+    SELECT orase
+    INTO tabel
+    FROM excursie_ao
+    WHERE cod_excursie = id;
+    
+    DBMS_OUTPUT.PUT_LINE('Numar orase= ' || tabel.count);
+    
+    FOR i in 1..tabel.count LOOP
+         DBMS_OUTPUT.PUT_LINE(tabel(i));
+    END LOOP;
+   
+END;
+/
+
+--d
+DECLARE 
+    tabel tip_orase_ao := tip_orase_ao();
+    TYPE tip_coduri IS VARRAY(5) OF NUMBER(6);
+    coduri tip_coduri;
+    id NUMBER(6) ;
+BEGIN
+    SELECT cod_excursie BULK COLLECT
+    INTO coduri
+    FROM excursie_ao;
+
+
+    for i in coduri.FIRST..coduri.LAST LOOP
+        id := coduri(i);
+        SELECT orase
+        INTO tabel
+        FROM excursie_ao
+        WHERE cod_excursie = id;
+        DBMS_OUTPUT.PUT_LINE('Excursia ' || id || ':');
+         FOR j in 1..tabel.count LOOP
+         DBMS_OUTPUT.PUT_LINE(tabel(j));
+        END LOOP;
+        DBMS_OUTPUT.PUT_LINE('');
+    END LOOP;
+        
+   
+END;
+/
+
+--e
+DECLARE 
+    tabel tip_orase_ao := tip_orase_ao();
+    TYPE tip_coduri IS VARRAY(5) OF NUMBER(6);
+    coduri tip_coduri;
+    id NUMBER(6) ;
+    minim_orase NUMBER(6);
+    numar NUMBER(6);
+BEGIN
+    SELECT cod_excursie BULK COLLECT
+    INTO coduri
+    FROM excursie_ao;
+
+    id := coduri(1);
+    SELECT orase
+    INTO tabel
+    FROM excursie_ao
+    WHERE cod_excursie = id;
+    
+    minim_orase := tabel.count;
+    
+    FOR i IN 2..coduri.LAST LOOP
+        id := coduri(i);
+        SELECT orase
+        INTO tabel
+        FROM excursie_ao
+        WHERE cod_excursie = id;
+        IF tabel.count < minim_orase
+            THEN minim_orase := tabel.count;
+        END IF;
+    END LOOP;
+    
+    DBMS_OUTPUT.PUT_LINE('Minimul este: ' || minim_orase);
+        
+    FOR i IN coduri.FIRST..coduri.LAST LOOP
+        id := coduri(i);
+        SELECT orase
+        INTO tabel
+        FROM excursie_ao
+        WHERE cod_excursie = id;
+        IF tabel.count = minim_orase THEN
+            UPDATE excursie_ao
+            SET status = 'UNAVAILABLE'
+            WHERE cod_excursie = id;
+        END IF;
+    END LOOP;
+   
+END;
+/
