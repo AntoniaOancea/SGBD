@@ -1,2 +1,0 @@
-# SGBD
-vadrvvvvvvvvvvvvv
